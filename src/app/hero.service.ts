@@ -26,16 +26,26 @@ export class HeroService {
 
   /** GET heroes from the server */
   getHeroes(): Observable<Hero[]> {
-    return this.http.get<Hero[]>(this.heroesUrl)
-      .pipe(
-        catchError(this.handleError<Hero[]>('getHeroes', []))
-      );
+    return this.http.get<Hero[]>(this.heroesUrl).pipe(
+      tap(_ => this.log('fetched heroes')),
+      catchError(this.handleError<Hero[]>('getHeroes', []))
+    );
   }
 
+  /** GET hero by id from the mock file */
+  // getHero(id: number): Observable<Hero> {
+  //   // TODO: send the message _after_ fetching the hero
+  //   this.messageService.add(`HeroService: fetched hero id=${id}`);
+  //   return of(HEROES.find(hero => hero.id === id)!); //TODO: how to fix it not using ! (non-null-assertion operator)
+  // }
+
+  /** GET hero by id. Will 404 if id not found */
   getHero(id: number): Observable<Hero> {
-    // TODO: send the message _after_ fetching the hero
-    this.messageService.add(`HeroService: fetched hero id=${id}`);
-    return of(HEROES.find(hero => hero.id === id)!); //TODO: how to fix it not using ! (non-null-assertion operator)
+    const url = `${this.heroesUrl}/${id}`;
+    return this.http.get<Hero>(url).pipe(
+      tap(_ => this.log(`fetched hero id=${id}`)),
+      catchError(this.handleError<Hero>(`getHero id=${id}`))
+    );
   }
 
   /** Log a HeroService message with the MessageService */
